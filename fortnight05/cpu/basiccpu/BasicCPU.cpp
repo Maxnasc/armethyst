@@ -127,12 +127,17 @@ int BasicCPU::ID()
 		// implementar o GRUPO A SEGUIR
 		//
 		// x1x0 Loads and Stores on page C4-246
-		case 0x08000000:
-        case 0x0C000000:
-        case 0x18000000:
-        case 0x1C000000:
+		case 0x08000000: // 010000000000000000000000000
+        case 0x0C000000: // 011000000000000000000000000
+        case 0x18000000: // 110000000000000000000000000
+        case 0x1C000000: // 111000000000000000000000000
             return decodeLoadStore();
             break;
+
+		case 0x14000000; // 00010100000000000000000000000000
+		case 0x16000000; // 00010110000000000000000000000000
+			return decodeBranches();
+			break;
 		
 		// ATIVIDADE FUTURA
 		// implementar os demais grupos
@@ -153,6 +158,7 @@ int BasicCPU::ID()
  * Retorna 0: se executou corretamente e
  *		   1: se a instrução não estiver implementada.
  */
+
 int BasicCPU::decodeDataProcImm() {
 	unsigned int n, d;
 	int imm;
@@ -217,8 +223,126 @@ int BasicCPU::decodeDataProcImm() {
  *		   1: se a instrução não estiver implementada.
  */
 int BasicCPU::decodeBranches() {
-	// instrução não implementada
-	return 1;
+
+// Desloca 6 pra esquerda, usa o signed, desloca 4 pra direita e pronto
+// O case trata os bits exatos das operações - FEITO
+// Vai ter um switch pra B e Bl - feito
+// Vai ter um switch pra reg - feito
+
+// TROCAR A BL POR B.COND pag C6-276
+
+	switch (IR & 0xFC000000) { // Mascara geral para os casos B e BL
+
+		case 0x14000000: // Instrução B pag C6-722
+			
+			uint64_t imm26 = (IR & 0x03FFFFFF) << 6;
+
+			A = PC; 
+
+			B = ((signed long)imm26) >> 4;
+
+			Rd = &PC;
+			
+			// atribuir ALUctrl
+			ALUctrl = ALUctrlFlag::ADD; //Adição
+			// atribuir MEMctrl
+			MEMctrl = MEMctrlFlag::MEM_NONE;
+			// atribuir WBctrl
+			WBctrl = WBctrlFlag::RegWrite;
+			// atribuir MemtoReg
+			MemtoReg=false;
+
+			return 0;
+
+		case 0x94000000: // Instrução BL pag C6-735
+
+			uint64_t imm26 = (IR & 0x03FFFFFF) << 6; 
+
+			A = PC; 
+
+			B = ((signed long)imm26) >> 4;
+
+			setX(30, (PC + 4));
+
+			Rd = &PC;
+			
+			// atribuir ALUctrl
+			ALUctrl = ALUctrlFlag::ADD; //Adição
+			// atribuir MEMctrl
+			MEMctrl = MEMctrlFlag::MEM_NONE; // Memória é ler ou acessar memória lw e sw, nesse caso os registradores estão dentro da CPU. Não gasta acessar a memória
+			// atribuir WBctrl
+			WBctrl = WBctrlFlag::RegWrite;
+			// atribuir MemtoReg
+			MemtoReg=false;
+
+			return 0;
+
+		default:
+
+			return 1;
+
+	}
+
+	switch (IR & 0xFF000010) { // B.cond C6-721
+	case 0X54000000:
+
+		switch (IR & 0x0000000F){
+			case 0x0000000D:
+
+				if (!( N_flag == V_flag and Z_flag == false)) {
+					uint64_t imm19 = (IR & 0x00FFFFE0) << 8; 
+					imm19 = imm19 >> 13;
+					imm19 = imm19 << 2;
+					B = imm19;
+				} else {
+					B = 0;
+				}
+
+				A = PC;
+
+				Rd = &PC;
+
+				// atribuir ALUctrl
+				ALUctrl = ALUctrlFlag::ADD; //Adição
+				// atribuir MEMctrl
+				MEMctrl = MEMctrlFlag::MEM_NONE; // Memória é ler ou acessar memória lw e sw, nesse caso os registradores estão dentro da CPU. Não gasta acessar a memória
+				// atribuir WBctrl
+				WBctrl = WBctrlFlag::RegWrite;
+				// atribuir MemtoReg
+				MemtoReg=false;
+
+			break;
+
+			default:
+			break;
+		}
+
+		break;
+	
+	default:
+		break;
+	}
+	
+	switch (IR & 0X7FFFFC1F)
+	{
+		case 0XD65F0000:
+
+			PC =  getX((IR & 0x000003E0) >> 5);
+		
+			// atribuir ALUctrl
+			ALUctrl = ALUctrlFlag::ALU_NONE; //Adição
+			// atribuir MEMctrl
+			MEMctrl = MEMctrlFlag::MEM_NONE; // Memória é ler ou acessar memória lw e sw, nesse caso os registradores estão dentro da CPU. Não gasta acessar a memória
+			// atribuir WBctrl
+			WBctrl = WBctrlFlag::WB_NONE;
+			// atribuir MemtoReg
+			MemtoReg=false;
+
+			break;
+		
+		default:
+		break;
+	}
 }
 
 /**
