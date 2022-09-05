@@ -323,8 +323,7 @@ int BasicCPU::decodeBranches() {
 		break;
 	}
 	
-	switch (IR & 0X7FFFFC1F)
-	{
+	switch (IR & 0X7FFFFC1F) { // ret C6-1053
 		case 0XD65F0000:
 
 			PC =  getX((IR & 0x000003E0) >> 5);
@@ -473,7 +472,41 @@ int BasicCPU::decodeLoadStore() {
 			return 0;
 
 	}
+
+	switch (IR & 0xFFE00C00){
+
+		case 0xF8201800:
+			uint numero = (IR & 0x60000000) >> 30;
+			uint opcao = (IR & 0x0000E000) >> 13;
+
+			uint aux = (IR & 0x00004000) >> 14;
+
+			if (aux == 0) {
+				// UNDEFINED
+			}else{
+				
+			}
+) 
+		return 0;	
+
+	}
 	return 1;
+}
+
+/*
+	DecodeRegExtend
+*/
+uint BasicCPU::decodeRegExtend(uint opcao) {
+
+	if (opcao == 000) {
+		return  ExtendType_UXTB;
+	} else	if (opcao == 001) {
+		return  ExtendType_UXTH;
+	} else	if (opcao == 100) {
+		return  ExtendType_SXTB;
+	} else	if (opcao == 101) {
+		return  ExtendType_SXTH;
+	}
 }
 
 /**
