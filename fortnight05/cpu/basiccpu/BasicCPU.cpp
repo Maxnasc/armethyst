@@ -482,7 +482,7 @@ int BasicCPU::decodeLoadStore() {
 			uint aux = (IR & 0x00004000) >> 14;
 
 			if (aux == 0) {
-				// UNDEFINED
+				
 			}else{
 				
 			}
