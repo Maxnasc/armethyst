@@ -265,13 +265,14 @@ int BasicCPU::decodeDataProcReg() {
 			imm6=(IR & 0x0000FC00) >> 10;
 		
 			switch(shift){
-				case 0://LSL
+
+				case 0: //LSL
 					B= BW << imm6;
 					break;
-				case 1://LSR
+				case 1: //LSR
 					B=((unsigned long)BW) >> imm6;
 					break;
-				case 2://ASR
+				case 2: //ASR
 					B=((signed long)BW) >> imm6;
 					break;
 				default:
@@ -281,8 +282,14 @@ int BasicCPU::decodeDataProcReg() {
 			// atribuir ALUctrl
 			ALUctrl = ALUctrlFlag::ADD;
 			
-			// ATIVIDADE FUTURA:
-			// implementar informações para os estágios MEM e WB.
+			// atribuir MEMctrl
+			MEMctrl = MEMctrlFlag::MEM_NONE;
+			
+			// atribuir WBctrl
+			WBctrl = WBctrlFlag::RegWrite;
+			
+			// atribuir MemtoReg
+			MemtoReg = false;
 
 			return 0;
 	}
@@ -300,6 +307,8 @@ int BasicCPU::decodeDataProcReg() {
  *		   1: se a instrução não estiver implementada.
  */
 int BasicCPU::decodeDataProcFloat() {
+
+	// Variáveis auxiliares para A, B, Rn 
 	unsigned int n,m,d;
 
 	// TODO
@@ -485,7 +494,6 @@ int BasicCPU::WB()
             return 1;
     }
 }
-
 
 /**
  * Métodos de acesso ao banco de registradores

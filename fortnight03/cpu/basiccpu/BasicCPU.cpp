@@ -202,7 +202,6 @@ int BasicCPU::decodeDataProcImm() {
 			// instrução não implementada
 			return 1;
 	}
-	
 	// instrução não implementada
 	return 1;
 }
@@ -417,11 +416,14 @@ int BasicCPU::EXF()
 		// 32-bit implementation
 		float fA = Util::uint64LowAsFloat(A);
 		float fB = Util::uint64LowAsFloat(B);
-		switch (ALUctrl)
-		{
+		
+		switch (ALUctrl) {
+
 			case ALUctrlFlag::SUB:
+
 				ALUout = Util::floatAsUint64Low(fA - fB);
 				return 0;
+				
 			default:
 				// Controle não implementado
 				return 1;
