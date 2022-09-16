@@ -828,7 +828,7 @@ int BasicCPU::EXI()
 		case ALUctrlFlag::ADD:
 			ALUout = A + B;
 			return 0;
-
+			
 		default:
 			// Controle não implementado
 			return 1;
@@ -867,6 +867,18 @@ int BasicCPU::EXF()
 		{
 			case ALUctrlFlag::SUB:
 				ALUout = Util::floatAsUint64Low(fA - fB);
+				return 0;
+			case ALUctrlFlag::ADD:
+				ALUout = Util::floatAsUint64Low(fA + fB);
+				return 0;
+			case ALUctrlFlag::DIV:
+				ALUout = Util::floatAsUint64Low(fA / fB);
+				return 0;
+			case ALUctrlFlag::MUL:
+				ALUout = Util::floatAsUint64Low(fA * fB);
+				return 0;
+			case ALUctrlFlag::NEG:
+				ALUout = Util::floatAsUint64Low(-fA);
 				return 0;
 			default:
 				// Controle não implementado
